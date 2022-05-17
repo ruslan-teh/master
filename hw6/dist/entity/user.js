@@ -13,7 +13,9 @@ exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const post_1 = require("./post");
 const comments_1 = require("./comments");
-let User = class User {
+const commonFields_1 = require("./commonFields");
+const config_1 = require("../config/config");
+let User = class User extends commonFields_1.CommonFields {
 };
 __decorate([
     (0, typeorm_1.PrimaryGeneratedColumn)(),
@@ -76,7 +78,7 @@ __decorate([
     __metadata("design:type", Array)
 ], User.prototype, "comments", void 0);
 User = __decorate([
-    (0, typeorm_1.Entity)('Users', { database: 'new_database' })
+    (0, typeorm_1.Entity)('Users', { database: config_1.config.MYSQL_DATABASE_NAME })
 ], User);
 exports.User = User;
 //# sourceMappingURL=user.js.map

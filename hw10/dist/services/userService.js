@@ -5,22 +5,34 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userService = void 0;
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const userRepository_1 = require("../repositories/user/userRepository");
+const repositories_1 = require("../repositories");
 const config_1 = require("../config/config");
 class UserService {
-    async createUser(user) {
-        const { password } = user;
+    async createUser(body) {
+        const { password } = body;
         const hashedPassword = await this._hashPassword(password);
-        const dataToSave = { ...user, password: hashedPassword };
-        return userRepository_1.userRepository.createUser(dataToSave);
+        const userToSave = { ...body, hashedPassword };
+        return repositories_1.userRepository.createUser(userToSave);
+    }
+    async getUserById(id) {
+        return repositories_1.userRepository.getUserById(id);
+    }
+    async updateUser(id, obj) {
+        if (obj.password) {
+            obj.password = await this._hashPassword(obj.password);
+        }
+        return repositories_1.userRepository.updateUser(id, obj);
     }
     async getUserByEmail(email) {
-        return userRepository_1.userRepository.getUserByEmail(email);
+        return repositories_1.userRepository.getUserByEmail(email);
     }
-    async compareUserPasswords(password, hash) {
-        const isPasswordUnique = await bcrypt_1.default.compare(password, hash);
+    async putchUser(id, email, password) {
+        return repositories_1.userRepository.putchUser(id, email, password);
+    }
+    async compareUserPassword(password, hash) {
+        const isPasswordUnique = bcrypt_1.default.compare(password, hash);
         if (!isPasswordUnique) {
-            throw new Error('user not exist');
+            throw new Error('User not exist');
         }
     }
     async _hashPassword(password) {

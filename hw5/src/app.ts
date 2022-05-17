@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import express, { Request, Response } from 'express';
 import { createConnection, getManager } from 'typeorm';
+
 import { User } from './entity/user';
 import { Post } from './entity/post';
 import { Comment } from './entity/comments';
@@ -12,7 +13,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/users', async (req: Request, res: Response) => {
     const users = await getManager().getRepository(User)
         .createQueryBuilder('user')
-        .leftJoin('Posts', 'posts', 'posts.userId = user.id')
+        // .leftJoin('Posts', 'posts', 'posts.userId = user.id')
         .getMany();
     res.json(users);
 });
@@ -28,8 +29,8 @@ app.post('/users', async (req, res) => {
 app.get('/users/:id', async (req: Request, res: Response) => {
     const user = await getManager().getRepository(User)
         .createQueryBuilder('user')
-        .where('user.id = :id', { id: +req.params['id'] })
-        .leftJoin('Posts', 'posts', 'posts.userId = user.id')
+        .where('user.id = :id', { id: +req.params.id })
+        // .leftJoin('Posts', 'posts', 'posts.userId = user.id')
         .getOne();
     res.json(user);
 });
@@ -63,7 +64,7 @@ app.get('/posts/:userId', async (req: Request, res: Response) => {
     try {
         const user = await getManager().getRepository(Post)
             .createQueryBuilder('post')
-            .where('post.userId = :id', { id: +req.params['userId'] })
+            .where('post.userId = :id', { id: +req.params.userId })
             .leftJoin('User', 'user', 'user.id = post.userId')
             .getMany();
         res.json(user);
@@ -77,7 +78,7 @@ app.put('/posts/:postId', async (req: Request, res: Response) => {
         const { title, text } = req.body;
         const updatedPost = await getManager()
             .getRepository(Post)
-            .update({ id: Number(req.params['postId']) }, { title, text });
+            .update({ id: Number(req.params.postId) }, { title, text });
         res.json(updatedPost);
     } catch (e) {
         console.log(e);
@@ -97,7 +98,7 @@ app.get('/comments/:userId', async (req: Request, res: Response) => {
     try {
         const comments = await getManager().getRepository(Comment)
             .createQueryBuilder('comment')
-            .where('comment.authorId = :id', { id: +req.params['userId'] })
+            .where('comment.authorId = :id', { id: +req.params.userId })
             .leftJoinAndSelect('comment.user', 'user')
             .leftJoinAndSelect('comment.post', 'post')
             .getMany();

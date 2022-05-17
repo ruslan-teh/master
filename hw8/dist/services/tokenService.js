@@ -8,21 +8,22 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config/config");
 const tokenRepository_1 = require("../repositories/token/tokenRepository");
 class TokenService {
-    async generateTokenPair(payload) {
+    generateTokenPair(payload) {
         const accessToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_ACCESS_KEY, { expiresIn: config_1.config.EXPIRES_IN_ACCESS });
-        const refreshToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_REFRESH_KEY, { expiresIn: config_1.config.EXPIRES_IN_REFRESH });
+        const refreshToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_ACCESS_KEY, { expiresIn: config_1.config.EXPIRES_IN_REFRESH });
         return {
             accessToken,
             refreshToken,
         };
     }
-    async saveToken(userId, refreshToken) {
-        const tokenFromDb = await tokenRepository_1.tokenRepository.findTokenByUserId(userId);
-        if (tokenFromDb) {
-            tokenFromDb.refreshToken = refreshToken;
-            return tokenRepository_1.tokenRepository.createToken(tokenFromDb);
+    async saveToken(userId, refreshToken, accessToken) {
+        const tokenFromDB = await tokenRepository_1.tokenRepository.findTokenByUserId(userId);
+        if (tokenFromDB) {
+            tokenFromDB.refreshToken = refreshToken;
+            tokenFromDB.accessToken = accessToken;
+            return tokenRepository_1.tokenRepository.createToken(tokenFromDB);
         }
-        return tokenRepository_1.tokenRepository.createToken({refreshToken, userId});
+        return tokenRepository_1.tokenRepository.createToken({ accessToken, refreshToken, userId });
     }
     async deleteUserTokenPair(userId) {
         return tokenRepository_1.tokenRepository.deleteByParams({ userId });

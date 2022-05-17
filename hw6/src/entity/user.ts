@@ -2,22 +2,24 @@ import {
     Column, Entity, OneToMany, PrimaryGeneratedColumn,
 } from 'typeorm';
 import { IPost, Post } from './post';
-import { Comment } from './comments';
-import { ICommonFields } from './commonFields';
+import { Comment, IComment } from './comments';
+import { CommonFields } from './commonFields';
+import { config } from '../config/config';
 
-export interface IUser extends ICommonFields{
-    id: number;
+export interface IUser {
+    id: number,
     firstName: string;
     lastName: string;
     age?: number;
-    phone: string;
+    phone?: string;
     email: string;
     password: string;
-    post: IPost[];
+    posts?: IPost[];
+    comments?: IComment[];
 }
 
-@Entity('Users', { database: 'new_database' })
-export class User {
+@Entity('Users', { database: config.MYSQL_DATABASE_NAME })
+export class User extends CommonFields implements IUser {
     @PrimaryGeneratedColumn()
         id: number;
 

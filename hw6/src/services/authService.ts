@@ -1,28 +1,30 @@
-import { IUser } from '../entity/user';
-import { ITokenData } from '../interfaces/token.interface';
+import { IUser } from '../entity';
+import { ITokenData } from '../interfaces';
 import { userService } from './userService';
 import { tokenService } from './tokenService';
 
 class AuthService {
-    public async registration(body:IUser): Promise<ITokenData> {
+    public async registration(body: IUser): Promise<ITokenData> {
         const { email } = body;
 
-        const userFromDb = await userService.getUserByEmail(email);
-        if (userFromDb) {
-            throw new Error(`User with email: ${email} already exists`);
+        const userFromDB = await userService.getUserByEmail(email);
+
+        if (userFromDB) {
+            throw new Error('user with email already exist');
         }
 
-        const createdUser = await userService.createUser(body);
-        return this._getTokenData(createdUser);
+        const createUser = await userService.createUser(body);
+        return this._getTokenData(createUser);
     }
 
-    private async _getTokenData(userData: IUser): Promise<ITokenData> {
+    private async _getTokenData(userData: IUser):Promise<ITokenData> {
         const { id, email } = userData;
-        const tokensPair = await tokenService.generateTokenPair({ userId: id, userEmail: email });
-        await tokenService.saveToken(id, tokensPair.refreshToken);
+
+        const tokenPair = await tokenService.generateTokenPair({ userId: id, userEmail: email });
+        await tokenService.saveToken(id, tokenPair.refreshToken);
 
         return {
-            ...tokensPair,
+            ...tokenPair,
             userId: id,
             userEmail: email,
         };

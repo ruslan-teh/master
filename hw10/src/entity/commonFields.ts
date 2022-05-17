@@ -3,9 +3,9 @@ import {
 } from 'typeorm';
 
 export interface ICommonFields {
-    id: number;
-    createdAt: string;
-    deletedAt?: string;
+    id: number,
+    createdAt: string,
+    deletedAt?: string,
 }
 
 export class CommonFields implements ICommonFields {

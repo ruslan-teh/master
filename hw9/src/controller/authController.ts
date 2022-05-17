@@ -1,8 +1,11 @@
 import { Request, Response } from 'express';
-import { ITokenData, IRequestExtended } from '../interfaces';
-import { authService, tokenService, userService } from '../services';
-import { COOKIE } from '../constans';
-import { IUser } from '../entity/user';
+
+import { authService } from '../services/authService';
+
+import { COOKIE } from '../constants';
+import { IRequestExtended, ITokenData } from '../interfaces';
+import { tokenService, userService } from '../services';
+import { IUser } from '../entity';
 import { tokenRepository } from '../repositories/token/tokenRepository';
 
 class AuthController {
@@ -13,30 +16,25 @@ class AuthController {
             data.refreshToken,
             { maxAge: COOKIE.maxAgeRefreshToken, httpOnly: true },
         );
-
         return res.json(data);
     }
 
-    public async logout(req: IRequestExtended, res: Response): Promise<Response<string>> {
+    public async logout(req:IRequestExtended, res:Response):Promise<Response<string>> {
         const { id } = req.user as IUser;
 
         await tokenService.deleteUserTokenPair(id);
 
-        return res.json('ok');
+        return res.json('Ok');
     }
 
-    public async login(req:IRequestExtended, res: Response) {
+    public async login(req:IRequestExtended, res:Response) {
         try {
             const { id, email, password: hashPassword } = req.user as IUser;
             const { password } = req.body;
 
             await userService.compareUserPasswords(password, hashPassword);
 
-            // @ts-ignore
-            const { refreshToken, accessToken } = tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            const { refreshToken, accessToken } = tokenService.generateTokenPair({ userId: id, userEmail: email });
 
             await tokenRepository.createToken({ refreshToken, accessToken, userId: id });
 
@@ -50,17 +48,14 @@ class AuthController {
         }
     }
 
-    public async refreshToken(req: IRequestExtended, res: Response) {
+    public async refreshToken(req:IRequestExtended, res: Response) {
         try {
             const { id, email } = req.user as IUser;
-            const refreshTokenDelete = req.get('Authorization');
+            const refreshTokenToDelete = req.get('Authorization');
 
-            await tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenDelete });
+            await tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenToDelete });
 
-            const { accessToken, refreshToken } = await tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            const { accessToken, refreshToken } = await tokenService.generateTokenPair({ userId: id, userEmail: email });
 
             await tokenRepository.createToken({ refreshToken, accessToken, userId: id });
 

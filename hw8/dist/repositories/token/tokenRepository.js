@@ -8,23 +8,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.tokenRepository = void 0;
 const typeorm_1 = require("typeorm");
-const token_1 = require("../../entity/token");
+const entity_1 = require("../../entity");
 let TokenRepository = class TokenRepository extends typeorm_1.Repository {
     async createToken(token) {
-        return (0, typeorm_1.getManager)().getRepository(token_1.Token).save(token);
+        return (0, typeorm_1.getManager)().getRepository(entity_1.Token).save(token);
     }
     async findTokenByUserId(userId) {
-        return (0, typeorm_1.getManager)().getRepository(token_1.Token).findOne({ userId });
-    }
-    async findByParams(filterObject) {
-        return (0, typeorm_1.getManager)().getRepository(token_1.Token).findOne(filterObject);
+        return (0, typeorm_1.getManager)().getRepository(entity_1.Token).findOne({ userId });
     }
     async deleteByParams(findObject) {
-        return (0, typeorm_1.getManager)().getRepository(token_1.Token).delete(findObject);
+        return (0, typeorm_1.getManager)().getRepository(entity_1.Token).delete(findObject);
     }
 };
 TokenRepository = __decorate([
-    (0, typeorm_1.EntityRepository)(token_1.Token)
+    (0, typeorm_1.EntityRepository)(entity_1.Token)
 ], TokenRepository);
 exports.tokenRepository = new TokenRepository();
 //# sourceMappingURL=tokenRepository.js.map

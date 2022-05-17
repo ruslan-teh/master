@@ -2,12 +2,11 @@ import jwt from 'jsonwebtoken';
 
 import { ITokenPair, IUserPayload } from '../interfaces';
 import { config } from '../config/config';
-import { IToken } from '../entity/token';
-import { tokenRepository } from '../repositories/token/tokenRepository';
+import { IToken } from '../entity';
+import { tokenRepositories } from '../repositories';
 
 class TokenService {
-    public async generateTokenPair(payload: IUserPayload):
-    Promise<ITokenPair> {
+    public generateTokenPair(payload: IUserPayload): ITokenPair {
         const accessToken = jwt.sign(
             payload,
             config.SECRET_ACCESS_KEY as string,
@@ -26,32 +25,42 @@ class TokenService {
         };
     }
 
-    public async saveToken(userId: number, refreshToken: string): Promise<IToken> {
-        const tokenFromDb = await tokenRepository.findTokenByUserId(userId);
-        if (tokenFromDb) {
-            tokenFromDb.refreshToken = refreshToken;
-            return tokenRepository.createToken(tokenFromDb);
+    public async saveToken(userId: number, accessToken: string, refreshToken: string): Promise<IToken> {
+        const tokenFromDB = await tokenRepositories.findTokenByUserId(userId);
+
+        if (tokenFromDB) {
+            tokenFromDB.refreshToken = refreshToken;
+            tokenFromDB.accessToken = accessToken;
+            return tokenRepositories.createToken(tokenFromDB);
         }
 
-        return tokenRepository.createToken({ refreshToken, userId });
+        return tokenRepositories.createToken({ accessToken, refreshToken, userId });
     }
 
     public async deleteUserTokenPair(userId: number) {
-        return tokenRepository.deleteByParams({ userId });
+        return tokenRepositories.deleteByParams({ userId });
     }
 
-    public async deleteTokenPairByParams(searchObject: Partial<IToken>) {
-        return tokenRepository.deleteByParams(searchObject);
-    }
-
-    public verifyToken(authToken: string, tokenType = 'access'): IUserPayload {
+    verifyToken(authToken: string, tokenType = 'access'): IUserPayload {
         let secretWord = config.SECRET_ACCESS_KEY;
 
-        if (tokenType === 'refresh') {
+        if (tokenType = 'refresh') {
             secretWord = config.SECRET_REFRESH_KEY;
         }
 
+        if (tokenType === 'action') {
+            secretWord = config.SECRET_ACTION_KEY;
+        }
+
         return jwt.verify(authToken, secretWord as string) as IUserPayload;
+    }
+
+    public generateActionToken(payload: IUserPayload): string {
+        return jwt.sign(payload, config.SECRET_ACTION_KEY, { expiresIn: config.EXPIRES_IN_ACTION });
+    }
+
+    public async deleteTokenPairByParams(searchObject: Partial<IToken>) {
+        return tokenRepositories.deleteByParams(searchObject);
     }
 }
 

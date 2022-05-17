@@ -1,20 +1,18 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
-import { ITokenData, IRequestExtended } from '../interfaces';
-import { authService, tokenService, userService } from '../services';
-import { COOKIE } from '../constans';
-import { IUser } from '../entity/user';
-import { tokenRepository } from '../repositories/token/tokenRepository';
+import { IRequestExtended, ITokenData } from '../interfaces';
+import {
+    authService, emailService, tokenService, userService,
+} from '../services';
+import { IUser } from '../entity';
+import { tokenRepositories } from '../repositories';
+import { actionTokenRepositories } from '../repositories/actionToken/actionYokenRepositories';
+import { ActionTokenTypes } from '../enums/actionTokenTypes.enums';
+import { constants, emailActionEnum } from '../constants';
 
 class AuthController {
-    public async registration(req:Request, res:Response):Promise<Response<ITokenData>> {
+    public async registration(req: Request, res: Response):Promise<Response<ITokenData>> {
         const data = await authService.registration(req.body);
-        res.cookie(
-            COOKIE.nameRefreshToken,
-            data.refreshToken,
-            { maxAge: COOKIE.maxAgeRefreshToken, httpOnly: true },
-        );
-
         return res.json(data);
     }
 
@@ -23,23 +21,19 @@ class AuthController {
 
         await tokenService.deleteUserTokenPair(id);
 
-        return res.json('ok');
+        return res.json('user logout');
     }
 
-    public async login(req:IRequestExtended, res: Response) {
+    public async login(req: IRequestExtended, res: Response) {
         try {
             const { id, email, password: hashPassword } = req.user as IUser;
             const { password } = req.body;
 
-            await userService.compareUserPasswords(password, hashPassword);
+            await userService.compareUserPassword(password, hashPassword);
 
-            // @ts-ignore
-            const { refreshToken, accessToken } = tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            const { accessToken, refreshToken } = tokenService.generateTokenPair({ userId: id, email });
 
-            await tokenRepository.createToken({ refreshToken, accessToken, userId: id });
+            await tokenRepositories.createToken({ userId: id, refreshToken, accessToken });
 
             res.json({
                 refreshToken,
@@ -54,24 +48,56 @@ class AuthController {
     public async refreshToken(req: IRequestExtended, res: Response) {
         try {
             const { id, email } = req.user as IUser;
-            const refreshTokenDelete = req.get('Authorization');
 
-            await tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenDelete });
+            const refreshTokenToDelete = req.get('Authorization');
 
-            const { accessToken, refreshToken } = await tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            await tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenToDelete });
 
-            await tokenRepository.createToken({ refreshToken, accessToken, userId: id });
+            const { accessToken, refreshToken } = await tokenService.generateTokenPair({ userId: id, email });
+
+            await tokenRepositories.createToken({ userId: id, refreshToken, accessToken });
 
             res.json({
-                refreshToken,
                 accessToken,
+                refreshToken,
                 user: req.user,
             });
         } catch (e) {
             res.status(400).json(e);
+        }
+    }
+
+    public async sendForgotPassword(req: IRequestExtended, res: Response, next: NextFunction) {
+        try {
+            const { id, email, firstName } = req.user as IUser;
+
+            const token = tokenService.generateActionToken({ userId: id, email });
+
+            await actionTokenRepositories.createActionToken({ actionToken: token, type: ActionTokenTypes.forgotPassword, userId: id });
+
+            await emailService.sendMail(email, emailActionEnum.ACCOUNT_BLOCKED, {
+                token,
+                userName: firstName,
+            });
+
+            res.sendStatus(204);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    public async setPassword(req: IRequestExtended, res: Response, next: NextFunction) {
+        try {
+            const { id } = req.user as IUser;
+
+            const actionToken = req.get(constants.AUTHORIZATION);
+
+            await userService.updateUser(id, req.body);
+            await actionTokenRepositories.deleteByParams({ actionToken });
+
+            res.sendStatus(201);
+        } catch (e) {
+            next(e);
         }
     }
 }

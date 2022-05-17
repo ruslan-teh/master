@@ -12,29 +12,29 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Token = void 0;
 const typeorm_1 = require("typeorm");
 const commonFields_1 = require("./commonFields");
-const config_1 = require("../config/config");
 const user_1 = require("./user");
 let Token = class Token extends commonFields_1.CommonFields {
 };
 __decorate([
     (0, typeorm_1.Column)({
         type: 'varchar',
-        width: 250,
-        nullable: false,
-    }),
-    __metadata("design:type", String)
-], Token.prototype, "refreshToken", void 0);
-__decorate([
-    (0, typeorm_1.Column)({
-        type: 'varchar',
-        width: 250,
+        width: 255,
         nullable: false,
     }),
     __metadata("design:type", String)
 ], Token.prototype, "accessToken", void 0);
 __decorate([
     (0, typeorm_1.Column)({
+        type: 'varchar',
+        width: 255,
+        nullable: false,
+    }),
+    __metadata("design:type", String)
+], Token.prototype, "refreshToken", void 0);
+__decorate([
+    (0, typeorm_1.Column)({
         type: 'int',
+        nullable: false,
     }),
     __metadata("design:type", Number)
 ], Token.prototype, "userId", void 0);
@@ -44,7 +44,7 @@ __decorate([
     __metadata("design:type", user_1.User)
 ], Token.prototype, "user", void 0);
 Token = __decorate([
-    (0, typeorm_1.Entity)('Tokens', { database: config_1.config.MYSQL_DATABASE_NAME })
+    (0, typeorm_1.Entity)('Tokens', { database: 'new_database' })
 ], Token);
 exports.Token = Token;
 //# sourceMappingURL=token.js.map

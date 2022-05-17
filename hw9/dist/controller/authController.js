@@ -1,30 +1,27 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authController = void 0;
+const authService_1 = require("../services/authService");
+const constants_1 = require("../constants");
 const services_1 = require("../services");
-const constans_1 = require("../constans");
 const tokenRepository_1 = require("../repositories/token/tokenRepository");
 class AuthController {
     async registration(req, res) {
-        const data = await services_1.authService.registration(req.body);
-        res.cookie(constans_1.COOKIE.nameRefreshToken, data.refreshToken, { maxAge: constans_1.COOKIE.maxAgeRefreshToken, httpOnly: true });
+        const data = await authService_1.authService.registration(req.body);
+        res.cookie(constants_1.COOKIE.nameRefreshToken, data.refreshToken, { maxAge: constants_1.COOKIE.maxAgeRefreshToken, httpOnly: true });
         return res.json(data);
     }
     async logout(req, res) {
         const { id } = req.user;
         await services_1.tokenService.deleteUserTokenPair(id);
-        return res.json('ok');
+        return res.json('Ok');
     }
     async login(req, res) {
         try {
             const { id, email, password: hashPassword } = req.user;
             const { password } = req.body;
             await services_1.userService.compareUserPasswords(password, hashPassword);
-            // @ts-ignore
-            const { refreshToken, accessToken } = services_1.tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            const { refreshToken, accessToken } = services_1.tokenService.generateTokenPair({ userId: id, userEmail: email });
             await tokenRepository_1.tokenRepository.createToken({ refreshToken, accessToken, userId: id });
             res.json({
                 refreshToken,
@@ -39,12 +36,9 @@ class AuthController {
     async refreshToken(req, res) {
         try {
             const { id, email } = req.user;
-            const refreshTokenDelete = req.get('Authorization');
-            await services_1.tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenDelete });
-            const { accessToken, refreshToken } = await services_1.tokenService.generateTokenPair({
-                userId: id,
-                userEmail: email,
-            });
+            const refreshTokenToDelete = req.get('Authorization');
+            await services_1.tokenService.deleteTokenPairByParams({ refreshToken: refreshTokenToDelete });
+            const { accessToken, refreshToken } = await services_1.tokenService.generateTokenPair({ userId: id, userEmail: email });
             await tokenRepository_1.tokenRepository.createToken({ refreshToken, accessToken, userId: id });
             res.json({
                 refreshToken,

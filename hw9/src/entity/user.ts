@@ -1,21 +1,28 @@
-import { Column, Entity, OneToMany } from 'typeorm';
-
-import { CommonFields, ICommonFields } from './commonFields';
+import {
+    Column, Entity, OneToMany, PrimaryGeneratedColumn,
+} from 'typeorm';
 import { IPost, Post } from './post';
-import { config } from '../config/config';
+import { Comment, IComment } from './comments';
+import { CommonFields } from './commonFields';
+import { config } from '../config';
 
-export interface IUser extends ICommonFields{
+export interface IUser {
+    id: number,
     firstName: string;
     lastName: string;
     age?: number;
     phone?: string;
     email: string;
     password: string;
-    post?: IPost[];
+    posts?: IPost[];
+    comments?: IComment[];
 }
 
 @Entity('Users', { database: config.MYSQL_DATABASE_NAME })
 export class User extends CommonFields implements IUser {
+    @PrimaryGeneratedColumn()
+        id: number;
+
     @Column({
         type: 'varchar',
         width: 255,
@@ -60,4 +67,7 @@ export class User extends CommonFields implements IUser {
 
     @OneToMany(() => Post, (post) => post.user)
         posts: Post[];
+
+    @OneToMany(() => Comment, (comment) => comment.user)
+        comments: Comment[];
 }

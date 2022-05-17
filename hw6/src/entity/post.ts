@@ -4,15 +4,16 @@ import {
 import { Comment, IComment } from './comments';
 import { CommonFields } from './commonFields';
 import { User } from './user';
+import { config } from '../config/config';
 
 export interface IPost {
     title: string;
     text: string;
     userId: number;
-    comments: IComment[];
+    comments?: IComment[];
 }
 
-@Entity('Posts', { database: 'new_database' })
+@Entity('Posts', { database: config.MYSQL_DATABASE_NAME })
 export class Post extends CommonFields implements IPost {
     @Column({
         type: 'varchar',
@@ -34,7 +35,7 @@ export class Post extends CommonFields implements IPost {
         userId: number;
 
     @OneToMany(() => Comment, (comment) => comment.post)
-        comments: Comment[];
+        comments?: Comment[];
 
     @ManyToOne(() => User, (user) => user.posts)
     @JoinColumn({ name: 'userId' })

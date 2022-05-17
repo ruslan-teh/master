@@ -2,10 +2,11 @@ import {
     Column, Entity, JoinColumn, OneToOne,
 } from 'typeorm';
 import { CommonFields, ICommonFields } from './commonFields';
-import { config } from '../config/config';
+import { config } from '../config';
 import { User } from './user';
 
 export interface IToken extends ICommonFields{
+    accessToken: string;
     refreshToken: string;
     userId: number;
 }

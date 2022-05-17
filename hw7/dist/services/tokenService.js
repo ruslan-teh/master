@@ -10,19 +10,29 @@ const tokenRepository_1 = require("../repositories/token/tokenRepository");
 class TokenService {
     async generateTokenPair(payload) {
         const accessToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_ACCESS_KEY, { expiresIn: config_1.config.EXPIRES_IN_ACCESS });
-        const refreshToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_REFRESH_KEY, { expiresIn: config_1.config.EXPIRES_IN_REFRESH });
+        const refreshToken = jsonwebtoken_1.default.sign(payload, config_1.config.SECRET_ACCESS_KEY, { expiresIn: config_1.config.EXPIRES_IN_REFRESH });
         return {
             accessToken,
             refreshToken,
         };
     }
     async saveToken(userId, refreshToken) {
-        const tokenFromDb = await tokenRepository_1.tokenRepository.findTokenByUserId(userId);
-        if (tokenFromDb) {
-            tokenFromDb.refreshToken = refreshToken;
-            return tokenRepository_1.tokenRepository.createToken(tokenFromDb);
+        const tokenFromDB = await tokenRepository_1.tokenRepository.findTokenByUserId(userId);
+        if (tokenFromDB) {
+            tokenFromDB.refreshToken = refreshToken;
+            return tokenRepository_1.tokenRepository.createToken(tokenFromDB);
         }
         return tokenRepository_1.tokenRepository.createToken({refreshToken, userId});
+    }
+    async deleteUserTokenPair(userId) {
+        return tokenRepository_1.tokenRepository.deleteByParams({ userId });
+    }
+    verifyToken(authToken, tokenType = 'access') {
+        let secretWord = config_1.config.SECRET_ACCESS_KEY;
+        if (tokenType === 'refresh') {
+            secretWord = config_1.config.SECRET_REFRESH_KEY;
+        }
+        return jsonwebtoken_1.default.verify(authToken, secretWord);
     }
 }
 exports.tokenService = new TokenService();

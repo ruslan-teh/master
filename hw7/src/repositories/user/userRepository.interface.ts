@@ -1,7 +1,5 @@
-import { IUser, User } from '../../entity/user';
+import { IUser } from '../../entity';
 
 export interface IUserRepository {
-    createUser(user:IUser): Promise<IUser>;
-
-    getUserByEmail(email: string): Promise<User | undefined>;
+    createUser(user: IUser): Promise<IUser>;
 }

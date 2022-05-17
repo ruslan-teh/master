@@ -1,11 +1,23 @@
 import {
     Column, Entity, OneToMany, PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Post } from './post';
-import { Comment } from './comments';
+import { IPost, Post } from './post';
+import { Comment, IComment } from './comments';
+import { CommonFields } from './commonFields';
+
+export interface IUser {
+    firstName: string;
+    lastName: string;
+    age?: number;
+    phone?: string;
+    email: string;
+    password: string;
+    posts: IPost[];
+    comments: IComment[];
+}
 
 @Entity('Users', { database: 'new_database' })
-export class User {
+export class User extends CommonFields implements IUser {
     @PrimaryGeneratedColumn()
         id: number;
 

@@ -1,2 +1,2 @@
-export * from './requestExtended.interface';
-export * from './token.interface';
+export * from './requestExtendedInterface';
+export * from './tokenInterface';

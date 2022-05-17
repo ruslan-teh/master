@@ -12,10 +12,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.User = void 0;
 const typeorm_1 = require("typeorm");
 const commonFields_1 = require("./commonFields");
-const post_1 = require("./post");
-const config_1 = require("../config/config");
 let User = class User extends commonFields_1.CommonFields {
 };
+__decorate([
+    (0, typeorm_1.PrimaryGeneratedColumn)(),
+    __metadata("design:type", Number)
+], User.prototype, "id", void 0);
 __decorate([
     (0, typeorm_1.Column)({
         type: 'varchar',
@@ -64,12 +66,8 @@ __decorate([
     }),
     __metadata("design:type", String)
 ], User.prototype, "password", void 0);
-__decorate([
-    (0, typeorm_1.OneToMany)(() => post_1.Post, (post) => post.user),
-    __metadata("design:type", Array)
-], User.prototype, "posts", void 0);
 User = __decorate([
-    (0, typeorm_1.Entity)('Users', { database: config_1.config.MYSQL_DATABASE_NAME })
+    (0, typeorm_1.Entity)('Users', { database: 'new_database' })
 ], User);
 exports.User = User;
 //# sourceMappingURL=user.js.map

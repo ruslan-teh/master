@@ -8,21 +8,43 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.userRepository = void 0;
 const typeorm_1 = require("typeorm");
-const user_1 = require("../../entity/user");
+const entity_1 = require("../../entity");
 let UserRepository = class UserRepository extends typeorm_1.Repository {
     async createUser(user) {
-        return (0, typeorm_1.getManager)().getRepository(user_1.User).save(user);
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User).save(user);
+    }
+    async getUserById(id) {
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User)
+            .createQueryBuilder('user')
+            .where('user.id = :id', { id })
+            .getOne();
+    }
+    async getAllUsers() {
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User)
+            .createQueryBuilder('user')
+            .getMany();
     }
     async getUserByEmail(email) {
-        return (0, typeorm_1.getManager)().getRepository(user_1.User)
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User)
             .createQueryBuilder('user')
             .where('user.email = :email', { email })
             .andWhere('user.deletedAt IS NULL')
             .getOne();
     }
+    async pathUser(id, email, password) {
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User)
+            .update({ id }, {
+            email,
+            password,
+        });
+    }
+    async deleteUser(id) {
+        return (0, typeorm_1.getManager)().getRepository(entity_1.User)
+            .delete({ id });
+    }
 };
 UserRepository = __decorate([
-    (0, typeorm_1.EntityRepository)(user_1.User)
+    (0, typeorm_1.EntityRepository)(entity_1.User)
 ], UserRepository);
 exports.userRepository = new UserRepository();
 //# sourceMappingURL=userRepository.js.map

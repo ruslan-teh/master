@@ -14,7 +14,7 @@ app.use(apiRouter);
 const { PORT } = config;
 
 app.listen(PORT, async () => {
-    console.log(`Server has started on PORT:${PORT}`);
+    console.log(`Server has started on Port:${PORT} `);
     try {
         const connection = await createConnection();
         if (connection) {
