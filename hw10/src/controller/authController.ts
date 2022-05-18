@@ -6,7 +6,7 @@ import {
 } from '../services';
 import { IUser } from '../entity';
 import { tokenRepositories } from '../repositories';
-import { actionTokenRepositories } from '../repositories/actionToken/actionYokenRepositories';
+import { actionTokenRepositories } from '../repositories/actionToken/actionYokenRepository';
 import { ActionTokenTypes } from '../enums/actionTokenTypes.enums';
 import { constants, emailActionEnum } from '../constants';
 

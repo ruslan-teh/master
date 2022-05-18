@@ -1,7 +1,7 @@
 import { getManager, Repository } from 'typeorm';
 import { IToken, Token } from '../../entity';
 
-class TokenRepositories extends Repository<Token> {
+class TokenRepository extends Repository<Token> {
     public async createToken(token: {userId: number, accessToken: string, refreshToken: string}): Promise<IToken> {
         return getManager().getRepository(Token).save(token);
     }
@@ -19,4 +19,4 @@ class TokenRepositories extends Repository<Token> {
     }
 }
 
-export const tokenRepositories = new TokenRepositories();
+export const tokenRepositories = new TokenRepository();

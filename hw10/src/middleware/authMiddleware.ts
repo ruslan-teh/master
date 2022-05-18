@@ -6,7 +6,7 @@ import { constants } from '../constants';
 import { tokenRepositories } from '../repositories';
 import { userValidator } from '../validators/userValidator';
 import { ErrorHandler } from '../error/ErrorHandler';
-import { actionTokenRepositories } from '../repositories/actionToken/actionYokenRepositories';
+import { actionTokenRepositories } from '../repositories/actionToken/actionYokenRepository';
 
 class AuthMiddleware {
     public async checkAccessToken(req: IRequestExtended, res: Response, next: NextFunction) {

@@ -1,6 +1,6 @@
 import { EntityRepository, getManager, Repository } from 'typeorm';
 import { ActionToken, IActionToken, IActionTokenForSave } from '../../entity/actionToken';
-import { IActionTokenRepositories } from './actionTokenRepositories.interface';
+import { IActionTokenRepositories } from './actionTokenRepository.interface';
 
 @EntityRepository(ActionToken)
 class ActionTokenRepositories extends Repository<ActionToken> implements IActionTokenRepositories {

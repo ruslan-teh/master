@@ -1,2 +1,2 @@
 export * from './user/userRepository';
-export * from './token/tokenRepositories';
+export * from './token/tokenRepository';
